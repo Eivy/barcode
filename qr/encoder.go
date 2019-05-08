@@ -68,6 +68,19 @@ func Encode(content string, level ErrorCorrectionLevel, mode Encoding) (barcode.
 	return result, nil
 }
 
+// EncodeBytes returns a QR barcode with the given content, error correction level and uses the given encoding
+func EncodeBytes(content []byte, level ErrorCorrectionLevel, mode Encoding) (barcode.Barcode, error) {
+	bits, vi, err := encodeBytes(content, level)
+	if err != nil {
+		return nil, err
+	}
+
+	blocks := splitToBlocks(bits.IterateBytes(), vi)
+	data := blocks.interleave(vi)
+	result := render(data, vi)
+	return result, nil
+}
+
 func render(data []byte, vi *versionInfo) *qrcode {
 	dim := vi.modulWidth()
 	results := make([]*qrcode, 8)
